@@ -671,17 +671,20 @@ class hdobs:
 
             # Retrieve list of files in URL(s) and filter by storm dates
             if self.format in [1, 3, 4]:
-                page = requests.get(archive_url[0]).text
-                content = page.split("\n")
-                files = []
-                for line in content:
-                    if ".txt" in line:
-                        files.append(
-                            ((line.split('txt">')[1]).split("</a>")[0]).split("."))
-                del content
-                files = sorted([i for i in files if i[1][:8]
-                               in timestr], key=lambda x: x[1])
-                linksub = [archive_url[0] + '.'.join(l) for l in files]
+                linksub = []
+                for url_group in archive_url:
+                    page = requests.get(url_group).text
+                    content = page.split("\n")
+                    files = []
+                    for line in content:
+                        if ".txt" in line:
+                            files.append(
+                                ((line.split('txt">')[1]).split("</a>")[0]).split("."))
+                    del content
+                    files = sorted([i for i in files if i[1][:8]
+                                   in timestr], key=lambda x: x[1])
+                    linksub += [url_group + '.'.join(l) for l in files]
+                linksub = sorted(linksub)
             elif self.format == 2:
                 linksub = []
                 for url in archive_url:
