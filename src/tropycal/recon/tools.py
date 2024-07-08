@@ -794,7 +794,7 @@ def decode_hdob_2005_noaa(content, strdate, mission_row=0):
 
     # Parse dates
     data = {}
-    data['time'] = [dt.strptime(strdate + i[0], '%Y%m%d%H%M%S')
+    data['time'] = [dt.strptime(f'{strdate}{i[0]}'.replace('P','0'), '%Y%m%d%H%M%S')
                     for i in items[3:]]
     if data['time'][0].hour > 12 and data['time'][-1].hour < 12:
         data['time'] = [t + timedelta(days=[0, 1][t.hour < 12])
@@ -862,7 +862,7 @@ def decode_hdob_2005_noaa(content, strdate, mission_row=0):
 
 def decode_hdob_2006(content, strdate, mission_row=3):
     r"""
-    Function for decoding HDOBs in the format between 2006 and early 2007. This also serves as the USAF decoder between 2002 and 2005.
+    Function for decoding HDOBs in the format between 2006 and early 2007. This also serves as the USAF decoder between 2002 and 2005, and HDOBs decoder pre-2001.
     """
 
     def check_error(string):
@@ -950,7 +950,7 @@ def decode_hdob_2006(content, strdate, mission_row=3):
     data['pkwnd'] = [np.nan if i > 300 else i for i in data['pkwnd']]
 
     # Fix coordinates for 1991 backwards
-    if int(strdate[4:]) <= 1991:
+    if int(strdate[:4]) <= 1991:
         data['lat'] = [np.nan if check_error(i[1]) else 90.0-round((float(i[1][:-2]) + float(i[1][-2:]) / 60), 2)
                        for i in items[3:]]
         data['lon'] = [np.nan if check_error(i[2]) else round((float(i[2][:-2]) + float(i[2][-2:]) / 60), 2) * -1
@@ -967,7 +967,7 @@ def decode_hdob_2006(content, strdate, mission_row=3):
     content_split = content.split("\n")
     mission_id = '-'.join(
         (content_split[mission_row].replace("  ", " ")).split(" ")[:3])
-    if int(strdate[0:4]) < 2006:
+    if int(strdate[:4]) < 2006:
         missionname = (mission_id.split("-")[1])[:2]
     data['mission'] = [missionname[:2]] * len(data['time'])
     data['mission_id'] = [mission_id] * len(data['time'])
