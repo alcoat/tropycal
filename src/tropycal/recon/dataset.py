@@ -2310,39 +2310,42 @@ class dropsondes:
                     strdate = (link.split('.')[-3]).split("_")[-1]
                     content_split = content.split("NNNN")
 
-                    for iter_content in content_split:
-
-                        iter_split = iter_content.split("\n")
-                        if len(iter_split) < 6:
-                            continue
-
-                        # Format date
-                        found_date = False
-                        for line in iter_split:
-                            if 'UZNT13' in line:
-                                date_string = line.split()[2]
-                                found_date = True
-                                datestamp = dt.strptime(strdate, '%Y%m%d')
-                                datestamp = datestamp.replace(day=int(date_string[:2]), hour=int(
-                                    date_string[2:4]), minute=int(date_string[4:6]))
-
-                        # Decode dropsondes
-                        if not found_date:
-                            continue
-                        try:
-                            missionname, tmp = decode_dropsonde(
-                                iter_content, date=datestamp)
-                        except:
-                            continue
-
-                        testkeys = ('lat', 'lon')
-                        filecount += 1
-                        if self.data is None:
-                            self.data = [copy.copy(tmp)]
-                        elif [tmp[k] for k in testkeys] not in [[d[k] for k in testkeys] for d in self.data]:
-                            self.data.append(tmp)
-                        else:
-                            pass
+                    try:
+                        for iter_content in content_split:
+    
+                            iter_split = iter_content.split("\n")
+                            if len(iter_split) < 6:
+                                continue
+    
+                            # Format date
+                            found_date = False
+                            for line in iter_split:
+                                if 'UZNT13' in line:
+                                    date_string = line.split()[2]
+                                    found_date = True
+                                    datestamp = dt.strptime(strdate, '%Y%m%d')
+                                    datestamp = datestamp.replace(day=int(date_string[:2]), hour=int(
+                                        date_string[2:4]), minute=int(date_string[4:6]))
+    
+                            # Decode dropsondes
+                            if not found_date:
+                                continue
+                            try:
+                                missionname, tmp = decode_dropsonde(
+                                    iter_content, date=datestamp)
+                            except:
+                                continue
+    
+                            testkeys = ('lat', 'lon')
+                            filecount += 1
+                            if self.data is None:
+                                self.data = [copy.copy(tmp)]
+                            elif [tmp[k] for k in testkeys] not in [[d[k] for k in testkeys] for d in self.data]:
+                                self.data.append(tmp)
+                            else:
+                                pass
+                    except:
+                        pass
 
             print(f'--> Completed reading in recon dropsonde files ({(dt.now()-timer_start).total_seconds():.1f} seconds)' +
                   f'\nRead {filecount} files')
