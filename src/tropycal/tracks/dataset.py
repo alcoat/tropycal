@@ -1890,7 +1890,8 @@ class TrackDataset:
                 year_genesis = np.array(year_genesis)
 
                 # Attach to dict
-                ace_maximum.append(year_cumulative_ace)
+                if year != cur_year:
+                    ace_maximum.append(year_cumulative_ace)
                 if year in use_years:
                     ace[str(year)] = {
                         'time': year_dates,
@@ -1903,7 +1904,8 @@ class TrackDataset:
                 year_genesis = np.array(year_genesis) - ((rolling_sum * 4) - 1)
 
                 # Attach to dict
-                ace_maximum.append(year_cumulative_ace)
+                if year != cur_year:
+                    ace_maximum.append(year_cumulative_ace)
                 if year in use_years:
                     ace[str(year)] = {
                         'time': year_dates[((rolling_sum * 4) - 1):],
