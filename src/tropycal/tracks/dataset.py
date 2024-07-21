@@ -1793,6 +1793,7 @@ class TrackDataset:
         if maximum_bounds is None:
             maximum_bounds = climo_bounds
         else:
+            maximum_bounds = list(maximum_bounds)
             if maximum_bounds[0] > climo_bounds[0]:
                 maximum_bounds[0] = climo_bounds[0]
             if maximum_bounds[1] < climo_bounds[1]:
@@ -1890,7 +1891,7 @@ class TrackDataset:
                 year_genesis = np.array(year_genesis)
 
                 # Attach to dict
-                if year != cur_year:
+                if year != cur_year or year == maximum_bounds[-1]:
                     ace_maximum.append(year_cumulative_ace)
                 if year in use_years:
                     ace[str(year)] = {
@@ -1904,7 +1905,7 @@ class TrackDataset:
                 year_genesis = np.array(year_genesis) - ((rolling_sum * 4) - 1)
 
                 # Attach to dict
-                if year != cur_year:
+                if year != cur_year or year == maximum_bounds[-1]:
                     ace_maximum.append(year_cumulative_ace)
                 if year in use_years:
                     ace[str(year)] = {
