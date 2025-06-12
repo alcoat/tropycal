@@ -2688,6 +2688,7 @@ class Storm:
 
             url_models_noaa = f"https://www.ssd.noaa.gov/PS/TROP/DATA/ATCF/JTWC/a{self.id.lower()}.dat"
             url_models_ucar = f"http://hurricanes.ral.ucar.edu/repository/data/adecks_open/{self.year}/a{self.id.lower()}.dat"
+            url_models_ucar_backup = f"http://hurricanes.ral.ucar.edu/realtime/plots/northwestpacific/{self.year}/{self.id.lower()}/a{self.id.lower()}.dat"
 
             # Retrieve model data text
             try:
@@ -2697,8 +2698,12 @@ class Storm:
                     content = read_url(
                         url_models_ucar, split=True, subsplit=False)
                 except:
-                    raise RuntimeError(
-                        "No operational model data is available for this storm.")
+                    try:
+                        content = read_url(
+                            url_models_ucar_backup, split=True, subsplit=False)
+                    except:
+                        raise RuntimeError(
+                            "No operational model data is available for this storm.")
             content = [i.split(",") for i in content]
             content = [i for i in content if len(i) > 10]
 
