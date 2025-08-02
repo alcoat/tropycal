@@ -2687,10 +2687,10 @@ class Storm:
         else:
 
             url_models_noaa = f"https://www.ssd.noaa.gov/PS/TROP/DATA/ATCF/JTWC/a{self.id.lower()}.dat"
-            url_models_ucar = f"http://hurricanes.ral.ucar.edu/repository/data/adecks_open/{self.year}/a{self.id.lower()}.dat"
+            url_models_ucar = f"https://hurricanes.ral.ucar.edu/repository/data/adecks_open/{self.year}/a{self.id.lower()}.dat"
             if self.year >= 2024:
-                url_models_ucar = f"http://hurricanes.ral.ucar.edu/repository/data/adecks_open/a{self.id.lower()}.dat"
-            url_models_ucar_backup = f"http://hurricanes.ral.ucar.edu/realtime/plots/northwestpacific/{self.year}/{self.id.lower()}/a{self.id.lower()}.dat"
+                url_models_ucar = f"https://hurricanes.ral.ucar.edu/repository/data/adecks_open/a{self.id.lower()}.dat"
+            url_models_ucar_backup = f"https://hurricanes.ral.ucar.edu/realtime/plots/northwestpacific/{self.year}/{self.id.lower()}/a{self.id.lower()}.dat"
 
             # Retrieve model data text
             try:
