@@ -12,3 +12,5 @@ docs/_api/generated/
 build/
 dist/
 .ipynb_checkpoints/*
+/src/tropycal/.ipynb_checkpoints
+/src/tropycal/tracks/.ipynb_checkpoints

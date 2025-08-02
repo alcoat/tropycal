@@ -671,17 +671,20 @@ class hdobs:
 
             # Retrieve list of files in URL(s) and filter by storm dates
             if self.format in [1, 3, 4]:
-                page = requests.get(archive_url[0]).text
-                content = page.split("\n")
-                files = []
-                for line in content:
-                    if ".txt" in line:
-                        files.append(
-                            ((line.split('txt">')[1]).split("</a>")[0]).split("."))
-                del content
-                files = sorted([i for i in files if i[1][:8]
-                               in timestr], key=lambda x: x[1])
-                linksub = [archive_url[0] + '.'.join(l) for l in files]
+                linksub = []
+                for url_group in archive_url:
+                    page = requests.get(url_group).text
+                    content = page.split("\n")
+                    files = []
+                    for line in content:
+                        if ".txt" in line:
+                            files.append(
+                                ((line.split('txt">')[1]).split("</a>")[0]).split("."))
+                    del content
+                    files = sorted([i for i in files if i[1][:8]
+                                   in timestr], key=lambda x: x[1])
+                    linksub += [url_group + '.'.join(l) for l in files]
+                linksub = sorted(linksub)
             elif self.format == 2:
                 linksub = []
                 for url in archive_url:
@@ -1740,7 +1743,7 @@ class hdobs:
             return figs
 
     def plot_swath(self, time=None, varname='wspd', filter_outer_obs=True, missing_window=24,
-                   domain="dynamic", ax=None, cartopy_proj=None, **kwargs):
+                   return_array=False, domain="dynamic", ax=None, cartopy_proj=None, **kwargs):
         r"""
         Creates a map plot of a swath of interpolated recon data.
 
@@ -1760,6 +1763,8 @@ class hdobs:
             If True, filters outer observations to avoid interpolating radii with only a single data point. Default is True.
         missing_window : int, optional
             Minimum window of hours to remove if data is missing. Default is 24 hours.
+        return_array : bool, optional
+            If True, the data array is returned. If False, the swath plot is returned. Default is False.
         domain : str
             Domain for the plot. Default is "dynamic". Please refer to :ref:`options-domain` for available domain options.
         ax : axes
@@ -1855,11 +1860,13 @@ class hdobs:
             cartopy_proj = self.plot_obj.proj
 
         # Plot recon
-        plot_ax = self.plot_obj.plot_swath(
+        plot_ax, grid = self.plot_obj.plot_swath(
             self.storm, Maps, varname, swathfunc, track_dict, center_passes,
             missing_window, domain, ax, prop=prop, map_prop=map_prop)
 
         # Return axis
+        if return_array:
+            return grid
         return plot_ax
 
     def gridded_stats(self, request, thresh={}, binsize=1, domain="dynamic", ax=None,
@@ -2307,39 +2314,42 @@ class dropsondes:
                     strdate = (link.split('.')[-3]).split("_")[-1]
                     content_split = content.split("NNNN")
 
-                    for iter_content in content_split:
-
-                        iter_split = iter_content.split("\n")
-                        if len(iter_split) < 6:
-                            continue
-
-                        # Format date
-                        found_date = False
-                        for line in iter_split:
-                            if 'UZNT13' in line:
-                                date_string = line.split()[2]
-                                found_date = True
-                                datestamp = dt.strptime(strdate, '%Y%m%d')
-                                datestamp = datestamp.replace(day=int(date_string[:2]), hour=int(
-                                    date_string[2:4]), minute=int(date_string[4:6]))
-
-                        # Decode dropsondes
-                        if not found_date:
-                            continue
-                        try:
-                            missionname, tmp = decode_dropsonde(
-                                iter_content, date=datestamp)
-                        except:
-                            continue
-
-                        testkeys = ('lat', 'lon')
-                        filecount += 1
-                        if self.data is None:
-                            self.data = [copy.copy(tmp)]
-                        elif [tmp[k] for k in testkeys] not in [[d[k] for k in testkeys] for d in self.data]:
-                            self.data.append(tmp)
-                        else:
-                            pass
+                    try:
+                        for iter_content in content_split:
+    
+                            iter_split = iter_content.split("\n")
+                            if len(iter_split) < 6:
+                                continue
+    
+                            # Format date
+                            found_date = False
+                            for line in iter_split:
+                                if 'UZNT13' in line:
+                                    date_string = line.split()[2]
+                                    found_date = True
+                                    datestamp = dt.strptime(strdate, '%Y%m%d')
+                                    datestamp = datestamp.replace(day=int(date_string[:2]), hour=int(
+                                        date_string[2:4]), minute=int(date_string[4:6]))
+    
+                            # Decode dropsondes
+                            if not found_date:
+                                continue
+                            try:
+                                missionname, tmp = decode_dropsonde(
+                                    iter_content, date=datestamp)
+                            except:
+                                continue
+    
+                            testkeys = ('lat', 'lon')
+                            filecount += 1
+                            if self.data is None:
+                                self.data = [copy.copy(tmp)]
+                            elif [tmp[k] for k in testkeys] not in [[d[k] for k in testkeys] for d in self.data]:
+                                self.data.append(tmp)
+                            else:
+                                pass
+                    except:
+                        pass
 
             print(f'--> Completed reading in recon dropsonde files ({(dt.now()-timer_start).total_seconds():.1f} seconds)' +
                   f'\nRead {filecount} files')
