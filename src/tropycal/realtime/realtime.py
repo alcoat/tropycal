@@ -449,8 +449,8 @@ class Realtime():
         if source == 'noaa':
             url = f'https://www.ssd.noaa.gov/PS/TROP/DATA/ATCF/JTWC/'
         if source == 'ucar':
-            url = f'http://hurricanes.ral.ucar.edu/repository/data/bdecks_open/{current_year}/'
-        if ssl_certificate is not None and source in ['jtwc', 'noaa']:
+            url = f'https://hurricanes.ral.ucar.edu/repository/data/bdecks_open/{current_year}/'
+        if ssl_certificate is not None:
             ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
             ssl_context.load_verify_locations(cafile=ssl_certificate)
             urlpath = urllib.request.urlopen(
