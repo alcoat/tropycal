@@ -513,8 +513,13 @@ class ReconPlot(Plot):
         # Add plot credit
         text = self.plot_credit()
         self.add_credit(text)
-        
-        return self.ax
+
+        return_grid = {
+            'data': aggregate_grid,
+            'lon': lons,
+            'lat': lats,
+        }
+        return self.ax, return_grid
 
     def plot_polar(self, dfRecon, track_dict, time=None, reconInterp=None, radlim=150, ax=None, prop={}):
         r"""

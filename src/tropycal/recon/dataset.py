@@ -1743,7 +1743,7 @@ class hdobs:
             return figs
 
     def plot_swath(self, time=None, varname='wspd', filter_outer_obs=True, missing_window=24,
-                   domain="dynamic", ax=None, cartopy_proj=None, **kwargs):
+                   return_array=False, domain="dynamic", ax=None, cartopy_proj=None, **kwargs):
         r"""
         Creates a map plot of a swath of interpolated recon data.
 
@@ -1763,6 +1763,8 @@ class hdobs:
             If True, filters outer observations to avoid interpolating radii with only a single data point. Default is True.
         missing_window : int, optional
             Minimum window of hours to remove if data is missing. Default is 24 hours.
+        return_array : bool, optional
+            If True, the data array is returned. If False, the swath plot is returned. Default is False.
         domain : str
             Domain for the plot. Default is "dynamic". Please refer to :ref:`options-domain` for available domain options.
         ax : axes
@@ -1858,11 +1860,13 @@ class hdobs:
             cartopy_proj = self.plot_obj.proj
 
         # Plot recon
-        plot_ax = self.plot_obj.plot_swath(
+        plot_ax, grid = self.plot_obj.plot_swath(
             self.storm, Maps, varname, swathfunc, track_dict, center_passes,
             missing_window, domain, ax, prop=prop, map_prop=map_prop)
 
         # Return axis
+        if return_array:
+            return grid
         return plot_ax
 
     def gridded_stats(self, request, thresh={}, binsize=1, domain="dynamic", ax=None,
